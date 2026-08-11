@@ -5,6 +5,7 @@ const FARM_PROXY_URL = 'https://sfl-farm-proxy.sfl-proxy.workers.dev';
 const SFL_SYNC_TIMEOUT_MS = 90000;
 const SFL_SYNC_INTERVAL_MS = 1500;
 const ORIGEM = 'SFL.World';
+const JANELA_MIN = 8;
 
 const HORARIOS_PADRAO = ['01:00', '07:00', '13:00', '19:00', '20:06', '20:33', '21:12'];
 const FARM_ID_PADRAO = '72837';
@@ -83,7 +84,7 @@ function encontrarHorarioAlvo(agora, horarios) {
   for (const horario of horarios) {
     const alvoMin = paraMinutos(horario);
     const diff = (agoraMin - alvoMin + 1440) % 1440;
-    if (diff >= 0 && diff <= 3) return horario;
+    if (diff >= 0 && diff <= JANELA_MIN) return horario;
   }
   return null;
 }
@@ -94,7 +95,7 @@ async function executar(config) {
 
   const alvo = encontrarHorarioAlvo(agora, config.horarios);
   if (!alvo) {
-    console.log('[AUTO-SAVE] Nenhum horário configurado coincide com ' + agora.horario + ' (janela de 3 min) — nada a fazer.');
+    console.log('[AUTO-SAVE] Nenhum horário configurado coincide com ' + agora.horario + ' (janela de ' + JANELA_MIN + ' min) — nada a fazer.');
     return { executado: false };
   }
   console.log('[AUTO-SAVE] Horário alvo ' + alvo + ' detectado — sincronizando farm ' + config.farmId + '...');

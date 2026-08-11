@@ -2,9 +2,10 @@ name: AutoSave Farm
 
 on:
   schedule:
-    # Checa a cada minuto (repo público = minutos gratuitos ilimitados).
-    # O horário real é decidido pela config/autosave no Firestore (editável no site).
-    - cron: '* * * * *'
+    # Intervalo mínimo do GitHub Actions = 5 min (repo público = minutos gratuitos).
+    # O horário real é decidido pela config/autosave no Firestore (editável no site);
+    # o script usa o horário configurado como carimbo, mesmo que rode minutos depois.
+    - cron: '*/5 * * * *'
   workflow_dispatch:
 
 permissions:

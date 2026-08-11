@@ -325,13 +325,8 @@ header h1 {
   font-size: 0.75rem;
   color: var(--profit);
   white-space: nowrap;
-  min-width: 0;
-  text-align: left;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  grid-column: 1;
-  grid-row: 3;
-  align-self: center;
+  min-width: 60px;
+  text-align: right;
 }
 
 .price-info.error {
@@ -415,36 +410,37 @@ header h1 {
 }
 
 .taxas-bar {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 12px;
-  margin-bottom: 20px;
-  align-items: stretch;
-}
-
-.taxa-item {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  grid-template-rows: auto 1fr auto;
-  gap: 6px 8px;
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 12px 14px;
+  padding: 16px 24px;
+  margin-bottom: 20px;
   align-items: center;
+  justify-content: center;
+}
+
+.taxa-item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 6px 8px;
+  flex: 1 1 0;
   min-width: 0;
+  max-width: 100%;
 }
 
 .taxa-label {
   font-size: 0.85rem;
   color: var(--text2);
   white-space: nowrap;
-  grid-column: 1 / -1;
 }
 
 .taxa-item input {
-  width: 100%;
-  min-width: 0;
+  width: 90px;
   padding: 6px 10px;
   background: var(--surface2);
   border: 1px solid var(--border);
@@ -455,8 +451,6 @@ header h1 {
   text-align: center;
   outline: none;
   transition: border 0.2s;
-  grid-column: 1;
-  grid-row: 2;
 }
 
 .taxa-item input:focus {
@@ -467,30 +461,14 @@ header h1 {
   font-size: 0.95rem;
   font-weight: 600;
   color: var(--diamond);
-  min-width: 0;
+  min-width: 75px;
   text-align: center;
-  grid-column: 1;
-  grid-row: 2;
 }
 
 .taxa-unit {
   font-size: 0.8rem;
   color: var(--text2);
   white-space: nowrap;
-  grid-column: 2;
-  grid-row: 2;
-  text-align: right;
-}
-
-.price-info,
-.btn-price {
-  margin-top: 2px;
-}
-
-.btn-price {
-  justify-self: end;
-  grid-column: 2;
-  grid-row: 3;
 }
 
 .actions {
@@ -848,8 +826,9 @@ tbody tr:hover {
   .cards { grid-template-columns: repeat(2, 1fr); gap: 10px; }
   .card { padding: 14px; }
   .card-value { font-size: 1.1rem; }
-  .taxas-bar { grid-template-columns: repeat(2, 1fr); gap: 10px; }
-  .taxa-item { padding: 10px 12px; }
+  .taxas-bar { flex-direction: column; align-items: stretch; }
+  .taxa-item { justify-content: space-between; }
+  .taxa-item input { width: 100px; }
   .actions { justify-content: center; }
   .charts-section { grid-template-columns: 1fr; }
 }

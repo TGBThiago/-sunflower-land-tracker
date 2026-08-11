@@ -411,26 +411,47 @@ header h1 {
 
 .taxas-bar {
   display: flex;
-  gap: 16px;
+  gap: 24px;
   flex-wrap: wrap;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 16px 24px;
   margin-bottom: 20px;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
+}
+
+.taxa-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1 1 200px;
+  min-width: 180px;
+  max-width: 340px;
+}
+
+.taxa-group + .taxa-group {
+  border-left: 1px solid var(--border);
+  padding-left: 24px;
+}
+
+.taxa-group-title {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text2);
+  white-space: nowrap;
 }
 
 .taxa-item {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 6px 8px;
-  flex: 1 1 0;
   min-width: 0;
-  max-width: 100%;
 }
 
 .taxa-label {
@@ -827,6 +848,8 @@ tbody tr:hover {
   .card { padding: 14px; }
   .card-value { font-size: 1.1rem; }
   .taxas-bar { flex-direction: column; align-items: stretch; }
+  .taxa-group { max-width: none; }
+  .taxa-group + .taxa-group { border-left: none; border-top: 1px solid var(--border); padding-left: 0; padding-top: 12px; }
   .taxa-item { justify-content: space-between; }
   .taxa-item input { width: 100px; }
   .actions { justify-content: center; }

@@ -119,34 +119,43 @@
     </section>
 
     <section class="taxas-bar">
-      <div class="taxa-item">
-        <span class="taxa-label">1000 Gold =</span>
-        <input type="number" id="taxaGold" step="any" min="0" value="2">
-        <span class="taxa-unit">Flower</span>
-        <span class="price-info" id="goldInfo"></span>
-        <button class="btn-price" id="btnAtualizarGold" title="Atualizar taxa Gold→Flower via SFL.World">↻</button>
+      <div class="taxa-group">
+        <span class="taxa-group-title">Gold → Flower</span>
+        <div class="taxa-item">
+          <span class="taxa-label">1000 Gold =</span>
+          <input type="number" id="taxaGold" step="any" min="0" value="2">
+          <span class="taxa-unit">Flower</span>
+          <span class="price-info" id="goldInfo"></span>
+          <button class="btn-price" id="btnAtualizarGold" title="Atualizar taxa Gold→Flower via SFL.World">↻</button>
+        </div>
       </div>
-      <div class="taxa-item">
-        <span class="taxa-label">Lote de gemas =</span>
-        <input type="number" id="taxaQtdGemas" step="1" min="1" value="2800">
-        <span class="taxa-unit">gemas</span>
+      <div class="taxa-group">
+        <span class="taxa-group-title">Gemas → Flower</span>
+        <div class="taxa-item">
+          <span class="taxa-label">Lote de gemas =</span>
+          <input type="number" id="taxaQtdGemas" step="1" min="1" value="2800">
+          <span class="taxa-unit">gemas</span>
+        </div>
+        <div class="taxa-item">
+          <span class="taxa-label">custa =</span>
+          <input type="number" id="taxaPrecoLote" step="any" min="0" value="215.77">
+          <span class="taxa-unit">Flower</span>
+        </div>
+        <div class="taxa-item">
+          <span class="taxa-label">1 gema =</span>
+          <span class="taxa-value-calc" id="taxaGemaDisplay">0.077063</span>
+          <span class="taxa-unit">Flower</span>
+        </div>
       </div>
-      <div class="taxa-item">
-        <span class="taxa-label">custa =</span>
-        <input type="number" id="taxaPrecoLote" step="any" min="0" value="215.77">
-        <span class="taxa-unit">Flower</span>
-      </div>
-      <div class="taxa-item">
-        <span class="taxa-label">1 gema =</span>
-        <span class="taxa-value-calc" id="taxaGemaDisplay">0.077063</span>
-        <span class="taxa-unit">Flower</span>
-      </div>
-      <div class="taxa-item">
-        <span class="taxa-label">1 Flower =</span>
-        <input type="number" id="taxaDolar" step="any" min="0" value="0.50">
-        <span class="taxa-unit">USD</span>
-        <span class="price-info" id="priceInfo"></span>
-        <button class="btn-price" id="btnAtualizarPreco" title="Atualizar preço via CoinGecko">↻</button>
+      <div class="taxa-group">
+        <span class="taxa-group-title">Flower → USD</span>
+        <div class="taxa-item">
+          <span class="taxa-label">1 Flower =</span>
+          <input type="number" id="taxaDolar" step="any" min="0" value="0.50">
+          <span class="taxa-unit">USD</span>
+          <span class="price-info" id="priceInfo"></span>
+          <button class="btn-price" id="btnAtualizarPreco" title="Atualizar preço via CoinGecko">↻</button>
+        </div>
       </div>
     </section>
 

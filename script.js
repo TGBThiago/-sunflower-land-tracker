@@ -834,6 +834,17 @@ btnSave.addEventListener('click', salvarBackup);
 btnLoad.addEventListener('click', () => fileInput.click());
 fileInput.addEventListener('change', carregarBackup);
 saqueFlower.addEventListener('input', atualizarSaque);
+tbody.addEventListener('click', (e) => {
+  const btnDel = e.target.closest('.btn-del');
+  if (btnDel) {
+    excluirRegistro(Number(btnDel.dataset.del));
+    return;
+  }
+  const btnEdit = e.target.closest('.btn-edit');
+  if (btnEdit) {
+    abrirModal(Number(btnEdit.dataset.edit));
+  }
+});
 
 function atualizarTaxas() {
   taxas.conversao = parseFloat(inputTaxaGold.value) || 0;
@@ -1035,8 +1046,8 @@ function renderizar() {
       <td class="${lucroDolarClass}">${lucroDolarStr}</td>
       <td>${p.obs || '-'}</td>
       <td>
-        <button class="btn-edit" onclick="abrirModal(${i})">Editar</button>
-        <button class="btn-del" onclick="excluirRegistro(${i})">Excluir</button>
+        <button class="btn-edit" data-edit="${i}">Editar</button>
+        <button class="btn-del" data-del="${i}">Excluir</button>
       </td>
     `;
     tbody.appendChild(tr);
@@ -1070,15 +1081,12 @@ function atualizarCards(processados) {
 }
 
 function atualizarGraficos(processados) {
-  if (chartPreco) chartPreco.destroy();
-  if (chartLucro) chartLucro.destroy();
-  chartPreco = null;
-  chartLucro = null;
-
   const temPreco = precoHistorico.length > 0;
   const temDados = processados.length > 0;
 
   if (!temPreco && !temDados) {
+    if (chartPreco) { chartPreco.destroy(); chartPreco = null; }
+    if (chartLucro) { chartLucro.destroy(); chartLucro = null; }
     const section = document.querySelector('.charts-section');
     if (section) section.remove();
     return;
@@ -1119,6 +1127,8 @@ function atualizarGraficos(processados) {
 
   const lucroCard = document.getElementById('chartLucroCard');
   if (lucroCard) lucroCard.style.display = temDados ? '' : 'none';
+  const precoCard = document.getElementById('chartPrecoCard');
+  if (precoCard) precoCard.style.display = temPreco ? '' : 'none';
 
   if (temPreco) {
     const precosData = precoHistorico.map(p => p.price);
@@ -1144,72 +1154,91 @@ function atualizarGraficos(processados) {
       return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
     });
 
-    chartPreco = new Chart(document.getElementById('chartPreco'), {
-      type: 'line',
-      data: {
-        labels: precosLabels,
-        datasets: [{
-          label: 'Preço (USD)',
-          data: precosData,
-          borderColor: '#22c55e',
-          backgroundColor: 'rgba(34, 197, 94, 0.1)',
-          fill: true,
-          tension: 0.3,
-          pointRadius: 1,
-          pointBackgroundColor: '#22c55e',
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: { labels: { color: '#8899aa' } },
-          tooltip: {
-            callbacks: {
-              title: items => {
-                const p = precoHistorico[items[0].dataIndex];
-                if (!p) return '';
-                return new Date(p.timestamp).toLocaleString('pt-BR');
-              },
-              label: ctx => '$' + ctx.parsed.y.toFixed(6),
-            }
-          }
+    if (chartPreco) {
+      chartPreco.data.labels = precosLabels;
+      chartPreco.data.datasets[0].data = precosData;
+      chartPreco.update();
+    } else {
+      chartPreco = new Chart(document.getElementById('chartPreco'), {
+        type: 'line',
+        data: {
+          labels: precosLabels,
+          datasets: [{
+            label: 'Preço (USD)',
+            data: precosData,
+            borderColor: '#22c55e',
+            backgroundColor: 'rgba(34, 197, 94, 0.1)',
+            fill: true,
+            tension: 0.3,
+            pointRadius: 1,
+            pointBackgroundColor: '#22c55e',
+          }]
         },
-        scales: {
-          x: { ticks: { color: '#8899aa', maxTicksLimit: 10 }, grid: { color: '#1e2530' } },
-          y: { ticks: { color: '#8899aa', callback: v => '$' + v.toFixed(6) }, grid: { color: '#1e2530' } }
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { labels: { color: '#8899aa' } },
+            tooltip: {
+              callbacks: {
+                title: items => {
+                  const p = precoHistorico[items[0].dataIndex];
+                  if (!p) return '';
+                  return new Date(p.timestamp).toLocaleString('pt-BR');
+                },
+                label: ctx => '$' + ctx.parsed.y.toFixed(6),
+              }
+            }
+          },
+          scales: {
+            x: { ticks: { color: '#8899aa', maxTicksLimit: 10 }, grid: { color: '#1e2530' } },
+            y: { ticks: { color: '#8899aa', callback: v => '$' + v.toFixed(6) }, grid: { color: '#1e2530' } }
+          }
         }
-      }
-    });
+      });
+    }
+  } else if (chartPreco) {
+    chartPreco.destroy();
+    chartPreco = null;
   }
 
   if (temDados) {
     const datas = processados.map(p => formatarData(p.data));
     const lucros = processados.map(p => p.lucroFlower);
 
-    chartLucro = new Chart(document.getElementById('chartLucro'), {
-      type: 'bar',
-      data: {
-        labels: datas,
-        datasets: [{
-          label: 'Lucro/Dia (Flower)',
-          data: lucros,
-          backgroundColor: lucros.map(v => v >= 0 ? '#22c55e' : '#ef4444'),
-          borderRadius: 4,
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: { labels: { color: '#8899aa' } }
+    if (chartLucro) {
+      chartLucro.data.labels = datas;
+      chartLucro.data.datasets[0].data = lucros;
+      chartLucro.data.datasets[0].backgroundColor = lucros.map(v => v >= 0 ? '#22c55e' : '#ef4444');
+      chartLucro.update();
+    } else {
+      chartLucro = new Chart(document.getElementById('chartLucro'), {
+        type: 'bar',
+        data: {
+          labels: datas,
+          datasets: [{
+            label: 'Lucro/Dia (Flower)',
+            data: lucros,
+            backgroundColor: lucros.map(v => v >= 0 ? '#22c55e' : '#ef4444'),
+            borderRadius: 4,
+          }]
         },
-        scales: {
-          x: { ticks: { color: '#8899aa' }, grid: { color: '#1e2530' } },
-          y: { ticks: { color: '#8899aa' }, grid: { color: '#1e2530' } }
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { labels: { color: '#8899aa' } }
+          },
+          scales: {
+            x: { ticks: { color: '#8899aa' }, grid: { color: '#1e2530' } },
+            y: { ticks: { color: '#8899aa' }, grid: { color: '#1e2530' } }
+          }
         }
-      }
-    });
+      });
+    }
+  } else if (chartLucro) {
+    chartLucro.destroy();
+    chartLucro = null;
   }
 }
 

@@ -119,9 +119,16 @@ async function executar(config) {
     origem: ORIGEM,
   };
   const chave = `${config.farmId}|${agora.data}|${alvo}`;
+  const chaveExecutado = `${agora.data}|${alvo}`;
+
+  if (Array.isArray(config.executados) && config.executados.includes(chaveExecutado)) {
+    console.log('[AUTO-SAVE] ' + chaveExecutado + ' já executado hoje — pulado (não recria registro excluído).');
+    return { executado: false, jaExecutado: true };
+  }
 
   const docs = await admin.firestore().collection('tracker').get();
   let atualizados = 0;
+  let encontradoExistente = false;
 
   for (const doc of docs.docs) {
     const atual = doc.data() || {};
@@ -132,6 +139,7 @@ async function executar(config) {
     const jaExiste = dados.some(r => r && r.farmId && `${r.farmId}|${r.data}|${r.horario}` === chave);
     if (jaExiste) {
       console.log('[AUTO-SAVE] Registro já existe para ' + doc.id + ' — pulado (anti-duplicação).');
+      encontradoExistente = true;
       continue;
     }
 
@@ -151,6 +159,16 @@ async function executar(config) {
     console.log('[AUTO-SAVE] Registro ' + agora.data + ' ' + alvo + ' gravado para ' + doc.id + '.');
   }
 
+  if (atualizados > 0 || encontradoExistente) {
+    try {
+      await admin.firestore().doc('config/autosave').set({
+        executados: admin.firestore.FieldValue.arrayUnion(chaveExecutado),
+      }, { merge: true });
+    } catch (err) {
+      console.warn('[AUTO-SAVE] Não foi possível marcar ' + chaveExecutado + ' como executado:', err.message);
+    }
+  }
+
   console.log('[AUTO-SAVE] Concluído. Docs atualizados: ' + atualizados + '.');
   return { executado: true, atualizados };
 }
@@ -168,14 +186,17 @@ async function main() {
   }
   admin.initializeApp({ credential: admin.credential.cert(serviceAccount) });
 
-  let config = { farmId: FARM_ID_PADRAO, horarios: HORARIOS_PADRAO };
+  let config = { farmId: FARM_ID_PADRAO, horarios: HORARIOS_PADRAO, executados: [] };
   try {
     const snap = await admin.firestore().doc('config/autosave').get();
     if (snap.exists) {
       const d = snap.data() || {};
+      const hoje = obterDataHoraSP().data;
+      const executados = (Array.isArray(d.executados) ? d.executados : []).filter(e => typeof e === 'string' && e.startsWith(hoje + '|'));
       config = {
         farmId: (d.farmId && String(d.farmId)) || FARM_ID_PADRAO,
         horarios: (Array.isArray(d.horarios) && d.horarios.length) ? d.horarios : HORARIOS_PADRAO,
+        executados,
       };
     }
   } catch (err) {

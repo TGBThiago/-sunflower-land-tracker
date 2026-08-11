@@ -29,7 +29,8 @@ const btnAtualizarGold = document.getElementById('btnAtualizarGold');
 const FARM_ID = '72837';
 const FARM_API_SOURCE = 'SFL.World';
 const FARM_PROXY_URL = 'https://sfl-farm-proxy.sfl-proxy.workers.dev';
-const AUTOSAVE_HORARIOS = ['01:00', '07:00', '13:00', '19:00', '20:06', '20:33', '21:12'];
+const AUTOSAVE_HORARIOS_PADRAO = ['01:00', '07:00', '13:00', '19:00', '20:06', '20:33', '21:12'];
+let AUTOSAVE_HORARIOS = [...AUTOSAVE_HORARIOS_PADRAO];
 const TIMEZONE_SP = 'America/Sao_Paulo';
 const SFL_SYNC_TIMEOUT_MS = 90000;
 const SFL_SYNC_INTERVAL_MS = 1500;
@@ -45,6 +46,9 @@ const farmErrorEl = document.getElementById('farmError');
 const farmAutosaveEl = document.getElementById('farmAutosave');
 const farmLogEl = document.getElementById('farmLog');
 const btnSalvarAgora = document.getElementById('btnSalvarAgora');
+const farmHorariosInput = document.getElementById('farmHorariosInput');
+const btnSalvarHorarios = document.getElementById('btnSalvarHorarios');
+const horariosStatusEl = document.getElementById('horariosStatus');
 
 const farmConfirmOverlay = document.getElementById('farmConfirmOverlay');
 const confirmDataEl = document.getElementById('confirmData');
@@ -127,10 +131,68 @@ function mostrarCarregando(visivel) {
   if (loadingMsg) loadingMsg.style.display = visivel ? 'block' : 'none';
 }
 
+function parseHorarios(str) {
+  const partes = String(str || '').split(',').map(s => s.trim()).filter(Boolean);
+  const validos = [];
+  for (const p of partes) {
+    if (/^([01]\d|2[0-3]):[0-5]\d$/.test(p)) validos.push(p);
+  }
+  return validos;
+}
+
+async function carregarConfigAutosave() {
+  if (typeof db === 'undefined') return;
+  try {
+    const snap = await db.collection('config').doc('autosave').get();
+    if (snap.exists) {
+      const d = snap.data() || {};
+      if (Array.isArray(d.horarios) && d.horarios.length) {
+        AUTOSAVE_HORARIOS = [...d.horarios];
+      }
+    }
+  } catch (err) {
+    console.warn('config/autosave não lido:', err.message);
+  }
+}
+
+async function salvarHorariosAutosave() {
+  const novos = parseHorarios(farmHorariosInput.value);
+  if (!novos.length) {
+    setStatusHorarios('Informe ao menos um horário no formato HH:MM.', 'error');
+    return;
+  }
+  try {
+    await db.collection('config').doc('autosave').set({
+      farmId: FARM_ID,
+      horarios: novos,
+    }, { merge: true });
+    AUTOSAVE_HORARIOS = [...novos];
+    setStatusHorarios('✔ Horários salvos: ' + novos.join(' · '), 'ok');
+    agendarAutoSave();
+  } catch (err) {
+    setStatusHorarios('Erro ao salvar: ' + err.message, 'error');
+  }
+}
+
+function setStatusHorarios(msg, tipo) {
+  if (!horariosStatusEl) return;
+  horariosStatusEl.textContent = msg;
+  horariosStatusEl.className = 'farm-status';
+  if (tipo) horariosStatusEl.classList.add(tipo);
+}
+
 function iniciarPainelFarm() {
   if (btnSalvarAgora) {
     btnSalvarAgora.addEventListener('click', () => salvarAgora({ auto: false }));
   }
+  if (farmHorariosInput) farmHorariosInput.value = AUTOSAVE_HORARIOS.join(', ');
+  if (btnSalvarHorarios) {
+    btnSalvarHorarios.addEventListener('click', salvarHorariosAutosave);
+  }
+  carregarConfigAutosave().then(() => {
+    if (farmHorariosInput) farmHorariosInput.value = AUTOSAVE_HORARIOS.join(', ');
+    agendarAutoSave();
+  });
   agendarAutoSave();
   carregarValoresAtuais();
   setInterval(refrescarPainelFarm, 15 * 60 * 1000);

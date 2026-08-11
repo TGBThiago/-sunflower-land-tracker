@@ -2,23 +2,9 @@ name: AutoSave Farm
 
 on:
   schedule:
-    # Horários em UTC. Fuso do agendador é UTC (Brasil/São Paulo = UTC-3).
-    # SP 01:00 = 04:00 UTC
-    # SP 07:00 = 10:00 UTC
-    # SP 13:00 = 16:00 UTC
-    # SP 19:00 = 22:00 UTC
-    # SP 20:06 = 23:06 UTC
-    # SP 20:33 = 23:33 UTC
-    # SP 21:12 = 00:12 UTC (dia seguinte)
-    - cron: '0 4 * * *'
-    - cron: '0 10 * * *'
-    - cron: '0 16 * * *'
-    - cron: '0 22 * * *'
-    - cron: '6 23 * * *'
-    - cron: '33 23 * * *'
-    - cron: '12 0 * * *'
-    # SP 21:36 = 00:36 UTC (dia seguinte)
-    - cron: '36 0 * * *'
+    # Checa a cada minuto (repo público = minutos gratuitos ilimitados).
+    # O horário real é decidido pela config/autosave no Firestore (editável no site).
+    - cron: '* * * * *'
   workflow_dispatch:
 
 permissions:

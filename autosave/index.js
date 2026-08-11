@@ -73,16 +73,31 @@ function validarDadosFarm(d) {
   return true;
 }
 
+function paraMinutos(horario) {
+  const [h, m] = String(horario).split(':').map(Number);
+  return h * 60 + m;
+}
+
+function encontrarHorarioAlvo(agora, horarios) {
+  const agoraMin = paraMinutos(agora.horario);
+  for (const horario of horarios) {
+    const alvoMin = paraMinutos(horario);
+    const diff = (agoraMin - alvoMin + 1440) % 1440;
+    if (diff >= 0 && diff <= 3) return horario;
+  }
+  return null;
+}
+
 async function executar(config) {
   const agora = obterDataHoraSP();
   console.log('[AUTO-SAVE] Início em ' + agora.data + ' ' + agora.horario + ' (SP).');
 
-  if (!config.horarios.includes(agora.horario)) {
-    console.log('[AUTO-SAVE] Horário ' + agora.horario + ' fora da lista — nada a fazer.');
+  const alvo = encontrarHorarioAlvo(agora, config.horarios);
+  if (!alvo) {
+    console.log('[AUTO-SAVE] Nenhum horário configurado coincide com ' + agora.horario + ' (janela de 3 min) — nada a fazer.');
     return { executado: false };
   }
-
-  console.log('[AUTO-SAVE] Horário ' + agora.horario + ' coincide — sincronizando farm ' + config.farmId + '...');
+  console.log('[AUTO-SAVE] Horário alvo ' + alvo + ' detectado — sincronizando farm ' + config.farmId + '...');
   await dispararSyncFarm(config.farmId);
   await aguardarSyncCompleto(config.farmId);
   const dadosFarm = await buscarDadosFarm(config.farmId);
@@ -93,7 +108,7 @@ async function executar(config) {
   const registro = {
     farmId: config.farmId,
     data: agora.data,
-    horario: agora.horario,
+    horario: alvo,
     gold: dadosFarm.gold,
     diamante: dadosFarm.diamonds,
     flower: dadosFarm.flower,
@@ -102,7 +117,7 @@ async function executar(config) {
     consultadoEm: dadosFarm.fetchedAt || new Date().toISOString(),
     origem: ORIGEM,
   };
-  const chave = `${config.farmId}|${agora.data}|${agora.horario}`;
+  const chave = `${config.farmId}|${agora.data}|${alvo}`;
 
   const docs = await admin.firestore().collection('tracker').get();
   let atualizados = 0;
@@ -132,7 +147,7 @@ async function executar(config) {
       });
     });
     atualizados++;
-    console.log('[AUTO-SAVE] Registro ' + agora.data + ' ' + agora.horario + ' gravado para ' + doc.id + '.');
+    console.log('[AUTO-SAVE] Registro ' + agora.data + ' ' + alvo + ' gravado para ' + doc.id + '.');
   }
 
   console.log('[AUTO-SAVE] Concluído. Docs atualizados: ' + atualizados + '.');

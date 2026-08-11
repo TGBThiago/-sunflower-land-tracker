@@ -5,7 +5,7 @@ const FARM_PROXY_URL = 'https://sfl-farm-proxy.sfl-proxy.workers.dev';
 const SFL_SYNC_TIMEOUT_MS = 90000;
 const SFL_SYNC_INTERVAL_MS = 1500;
 const ORIGEM = 'SFL.World';
-const JANELA_MIN = 8;
+const JANELA_MIN = 30;
 
 const HORARIOS_PADRAO = ['01:00', '07:00', '13:00', '19:00', '20:06', '20:33', '21:12'];
 const FARM_ID_PADRAO = '72837';

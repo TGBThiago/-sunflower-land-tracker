@@ -8,6 +8,8 @@ on:
     - cron: '*/5 * * * *'
   workflow_dispatch:
 
+# touch: força re-registro do schedule
+
 permissions:
   contents: read
 

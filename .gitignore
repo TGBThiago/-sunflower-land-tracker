@@ -1,0 +1,7 @@
+service-account*.json
+node_modules/
+test-results/
+playwright-report/
+site-clone/
+.firebase/
+save/*.json

@@ -1,0 +1,17 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Cada usuário só lê/escreve o próprio documento
+    match /tracker/{docId} {
+      allow read, write: if request.auth != null && request.auth.uid == docId;
+      // Acesso somente de migração ao documento legado (copiar e excluir)
+      allow get, delete: if docId == 'main';
+    }
+
+    // Deny everything else
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

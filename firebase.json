@@ -1,0 +1,47 @@
+{
+  "hosting": {
+    "public": ".",
+    "ignore": [
+      "**/node_modules/**",
+      "**/e2e/**",
+      "**/save/**",
+      "**/docs/**",
+      "**/.planning/**",
+      "**/test-results/**",
+      "**/.firebase/**",
+      "**/.git/**",
+      "**/site-clone/**",
+      "firebase.json",
+      ".firebaserc",
+      "firestore.rules",
+      "deploy-rules.js",
+      "playwright.config.js",
+      ".gitignore",
+      "package.json",
+      "package-lock.json",
+      "*.md",
+      "**/*.md",
+      "restore.js",
+      "AGENTS.md",
+      "seed.html",
+      "seed-firestore.js"
+    ],
+    "headers": [
+      {
+        "source": "**/*.html",
+        "headers": [
+          { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" }
+        ]
+      },
+      {
+        "source": "/",
+        "headers": [
+          { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" }
+        ]
+      }
+    ]
+  },
+  "firestore": {
+    "rules": "firestore.rules"
+  }
+}

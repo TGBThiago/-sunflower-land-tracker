@@ -1,0 +1,45 @@
+name: AutoSave Farm
+
+on:
+  schedule:
+    # Horários em UTC. Fuso do agendador é UTC (Brasil/São Paulo = UTC-3).
+    # SP 01:00 = 04:00 UTC
+    # SP 07:00 = 10:00 UTC
+    # SP 13:00 = 16:00 UTC
+    # SP 19:00 = 22:00 UTC
+    # SP 20:06 = 23:06 UTC
+    # SP 20:33 = 23:33 UTC
+    # SP 21:12 = 00:12 UTC (dia seguinte)
+    - cron: '0 4 * * *'
+    - cron: '0 10 * * *'
+    - cron: '0 16 * * *'
+    - cron: '0 22 * * *'
+    - cron: '6 23 * * *'
+    - cron: '33 23 * * *'
+    - cron: '12 0 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  autosave:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: autosave/package-lock.json
+
+      - name: Instalar dependências
+        working-directory: autosave
+        run: npm ci
+
+      - name: Rodar auto-save
+        working-directory: autosave
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: node index.js

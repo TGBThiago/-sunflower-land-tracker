@@ -1,0 +1,29 @@
+{
+  "dados": [
+    {
+      "diamante": 1828,
+      "data": "2026-08-10",
+      "obs": "",
+      "saque": 0,
+      "flower": 1120,
+      "gold": 37421
+    },
+    {
+      "saque": 0,
+      "flower": 1180,
+      "obs": "",
+      "data": "2026-08-10",
+      "diamante": 1828,
+      "gold": 32421
+    }
+  ],
+  "taxas": {
+    "valorDolar": 0.105259,
+    "qtdGemas": 2800,
+    "saqueFlower": 2,
+    "diamanteTaxa": 0.07294285714285714,
+    "precoLote": 204.24,
+    "conversao": 0.0171
+  },
+  "exportadoEm": "2026-08-10T19:22:43.220Z"
+}

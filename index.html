@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sunflower Land - Planilha de Lucro</title>
+  <link rel="stylesheet" href="style.css?v=2">
+</head>
+<body>
+  <div class="auth-screen" id="authScreen">
+    <div class="auth-card">
+      <h1><span class="gold">✦</span> Sunflower Land <span class="gold">✦</span></h1>
+      <p class="subtitle">Planilha de Lucro Diário</p>
+
+      <div class="auth-tabs">
+        <button type="button" class="auth-tab" id="tabLogin">Entrar</button>
+        <button type="button" class="auth-tab active" id="tabCriar">Criar conta</button>
+      </div>
+
+      <div id="loginPane" style="display:none">
+        <form id="loginForm" class="auth-form" autocomplete="on">
+          <input type="email" id="authEmail" placeholder="Email" required autocomplete="email">
+          <input type="password" id="authPassword" placeholder="Senha" required autocomplete="current-password">
+          <p class="auth-error" id="authError"></p>
+          <button type="submit" class="btn btn-add" id="authSubmit">Entrar</button>
+        </form>
+        <div class="auth-divider"><span>ou</span></div>
+        <button type="button" class="btn-google" id="btnGoogle">Entrar com Google</button>
+        <div class="auth-links">
+          <button type="button" class="link-btn" id="btnEsqueci">Esqueci minha senha</button>
+        </div>
+      </div>
+
+      <div id="createPane">
+        <form id="createForm" class="auth-form" autocomplete="on">
+          <input type="email" id="newEmail" placeholder="Email" required autocomplete="email">
+          <input type="password" id="newPassword" placeholder="Senha" required minlength="6" autocomplete="new-password">
+          <input type="password" id="confirmPassword" placeholder="Confirmar senha" required autocomplete="new-password">
+          <p class="auth-error" id="createError"></p>
+          <button type="submit" class="btn btn-add" id="btnCriarConta">Criar conta</button>
+        </form>
+        <div class="auth-divider"><span>ou</span></div>
+        <button type="button" class="btn-google" id="btnGoogleCreate">Criar conta com Google</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <header>
+      <button class="btn-sair" id="btnSair" style="display:none">Sair</button>
+      <h1><span class="gold">✦</span> Sunflower Land <span class="gold">✦</span></h1>
+      <p class="subtitle">Planilha de Lucro Diário</p>
+      <p class="loading-msg" id="loadingMsg">Carregando dados da nuvem...</p>
+    </header>
+
+    <section class="cards">
+      <div class="card card-patrimonio">
+        <span class="card-label">Patrimônio Atual</span>
+        <span class="card-value" id="cardPatrimonio">0 Flower</span>
+      </div>
+      <div class="card card-dolar">
+        <span class="card-label">Total em Dólar</span>
+        <span class="card-value" id="cardDolar">$0.00</span>
+      </div>
+      <div class="card card-lucro">
+        <span class="card-label">Lucro Acumulado</span>
+        <span class="card-value" id="cardLucro">0 Flower</span>
+      </div>
+      <div class="card card-media">
+        <span class="card-label">Média Diária</span>
+        <span class="card-value" id="cardMedia">0 Flower</span>
+      </div>
+      <div class="card card-estimativa">
+        <span class="card-label">Estimativa do Mês</span>
+        <span class="card-value" id="cardEstimativa">$0.00</span>
+      </div>
+    </section>
+
+    <section class="farm-panel">
+      <div class="farm-panel-header">
+        <h2>🌻 Farm <span class="gold">72837</span></h2>
+        <span class="farm-source">Fonte: <b>SFL.World</b></span>
+      </div>
+      <div class="farm-grid">
+        <div class="farm-item">
+          <span class="farm-label">Farm ID</span>
+          <span class="farm-value" id="farmId">72837</span>
+        </div>
+        <div class="farm-item">
+          <span class="farm-label">Gold</span>
+          <span class="farm-value gold" id="farmGold">—</span>
+        </div>
+        <div class="farm-item">
+          <span class="farm-label">Diamonds</span>
+          <span class="farm-value" id="farmDiamonds">—</span>
+        </div>
+        <div class="farm-item">
+          <span class="farm-label">Flower</span>
+          <span class="farm-value" id="farmFlower">—</span>
+        </div>
+        <div class="farm-item">
+          <span class="farm-label">Última atualização</span>
+          <span class="farm-value" id="farmUpdated">—</span>
+        </div>
+      </div>
+      <div class="farm-actions">
+        <button class="btn btn-save" id="btnSalvarAgora">💾 SALVAR AGORA</button>
+        <span class="farm-status" id="farmStatus"></span>
+      </div>
+      <div class="farm-error" id="farmError" style="display:none"></div>
+      <div class="farm-autosave" id="farmAutosave"></div>
+      <div class="farm-log" id="farmLog" aria-live="polite"></div>
+    </section>
+
+    <section class="taxas-bar">
+      <div class="taxa-item">
+        <span class="taxa-label">1000 Gold =</span>
+        <input type="number" id="taxaGold" step="any" min="0" value="2">
+        <span class="taxa-unit">Flower</span>
+        <span class="price-info" id="goldInfo"></span>
+        <button class="btn-price" id="btnAtualizarGold" title="Atualizar taxa Gold→Flower via SFL.World">↻</button>
+      </div>
+      <div class="taxa-item">
+        <span class="taxa-label">Lote de gemas =</span>
+        <input type="number" id="taxaQtdGemas" step="1" min="1" value="2800">
+        <span class="taxa-unit">gemas</span>
+      </div>
+      <div class="taxa-item">
+        <span class="taxa-label">custa =</span>
+        <input type="number" id="taxaPrecoLote" step="any" min="0" value="215.77">
+        <span class="taxa-unit">Flower</span>
+      </div>
+      <div class="taxa-item">
+        <span class="taxa-label">1 gema =</span>
+        <span class="taxa-value-calc" id="taxaGemaDisplay">0.077063</span>
+        <span class="taxa-unit">Flower</span>
+      </div>
+      <div class="taxa-item">
+        <span class="taxa-label">1 Flower =</span>
+        <input type="number" id="taxaDolar" step="any" min="0" value="0.50">
+        <span class="taxa-unit">USD</span>
+        <span class="price-info" id="priceInfo"></span>
+        <button class="btn-price" id="btnAtualizarPreco" title="Atualizar preço via CoinGecko">↻</button>
+      </div>
+    </section>
+
+    <section class="actions">
+      <button class="btn btn-add" id="btnAdd">+ Adicionar Dia</button>
+      <button class="btn btn-csv" id="btnExport">Exportar CSV</button>
+      <button class="btn btn-save" id="btnSave">Salvar Backup</button>
+      <button class="btn btn-load" id="btnLoad">Carregar Backup</button>
+      <button class="btn btn-clear" id="btnClear">Limpar Tudo</button>
+      <input type="file" id="fileInput" accept=".json" style="display:none">
+      <div class="saque-card">
+        <span class="saque-label">Saque (Flower)</span>
+        <input type="number" id="saqueFlower" class="saque-input" step="any" min="0" value="0">
+        <span class="saque-value" id="saqueDolar">= $0.00</span>
+      </div>
+    </section>
+
+    <section class="table-wrapper">
+      <table id="tabela">
+        <thead>
+          <tr>
+            <th>Data</th>
+            <th>Gold</th>
+            <th>Diamante</th>
+            <th>Flower</th>
+            <th>Saque</th>
+            <th>Gold → Flower</th>
+            <th>Diamante → Flower</th>
+            <th>Patrimônio (Flower)</th>
+            <th>Patrimônio (USD)</th>
+            <th>Lucro/Dia (Flower)</th>
+            <th>Lucro/Dia (USD)</th>
+            <th>Obs</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+      <p class="empty-msg" id="emptyMsg">Nenhum registro ainda. Clique em "Adicionar Dia" para começar.</p>
+    </section>
+  </div>
+
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+      <button type="button" class="modal-close" id="btnFecharModal" title="Fechar">✕</button>
+      <h2 id="modalTitle">Adicionar Dia</h2>
+      <form id="modalForm" autocomplete="off">
+        <input type="hidden" id="editIndex" value="">
+        <label>
+          Data
+          <input type="date" id="fieldData" required>
+        </label>
+        <label>
+          Gold Atual
+          <input type="number" id="fieldGold" step="any" min="0" required placeholder="Ex: 3000">
+        </label>
+        <label>
+          Diamante Atual
+          <input type="number" id="fieldDiamante" step="any" min="0" required placeholder="Ex: 748">
+        </label>
+        <label>
+          Flower Atual
+          <input type="number" id="fieldFlower" step="any" min="0" required placeholder="Ex: 160">
+        </label>
+        <label>
+          Saque (Flower)
+          <input type="number" id="fieldSaque" step="any" min="0" placeholder="Ex: 200">
+        </label>
+        <label>
+          Observações
+          <input type="text" id="fieldObs" placeholder="Opcional">
+        </label>
+        <div class="modal-actions">
+          <button type="submit" class="btn btn-add" id="btnSalvar">Salvar</button>
+          <button type="button" class="btn btn-clear" id="btnCancelar">Cancelar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="farmConfirmOverlay">
+    <div class="modal">
+      <h2>Confirmar Salvamento</h2>
+      <p class="farm-confirm-note">
+        Dados obtidos do <b>SFL World</b> após o SYNC da conta. Confira os valores antes de salvar.
+      </p>
+      <div class="farm-confirm-grid">
+        <div><span>Data</span><b id="confirmData">—</b></div>
+        <div><span>Horário</span><b id="confirmHorario">—</b></div>
+        <div><span>Gold</span><b id="confirmGold">—</b></div>
+        <div><span>Diamantes</span><b id="confirmDiamantes">—</b></div>
+        <div><span>Flower</span><b id="confirmFlower">—</b></div>
+        <div><span>Fonte</span><b id="confirmOrigem">SFL.World</b></div>
+      </div>
+      <p class="farm-confirm-countdown" id="confirmCountdown" style="display:none"></p>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-add" id="btnConfirmarSalvar">Confirmar e Salvar</button>
+        <button type="button" class="btn btn-clear" id="btnCancelarConfirmar">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-analytics-compat.js"></script>
+  <script src="firebase.js?v=2"></script>
+  <script src="auth.js?v=2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="script.js?v=2"></script>
+</body>
+</html>

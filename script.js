@@ -72,6 +72,7 @@ let fsSaveTimer = null;
 let localVersion = 0;
 let precoHistorico = [];
 let precoPeriodo = '7';
+const horariosExcluidos = new Set();
 
 const MIGRATION_SECRET = 'SL-41dcc7bf5ed62791901e01b9';
 
@@ -633,7 +634,8 @@ function iniciarSnapshot() {
     if (!data) return;
     const incomingVersion = data.version || 0;
     if (incomingVersion <= localVersion) return;
-    dados = data.dados || [];
+    const vindos = (data.dados || []).filter(r => !(r && horariosExcluidos.has(`${r.data}|${r.horario}`)));
+    dados = vindos;
     localVersion = incomingVersion;
     if (data.taxas) {
       taxas = { ...taxas, ...data.taxas };
@@ -952,19 +954,47 @@ function salvarRegistro(e) {
 
 function excluirRegistro(index) {
   if (!confirm('Excluir este registro?')) return;
-  dados.splice(index, 1);
+  const removido = dados.splice(index, 1)[0];
   agendarSaveFirestore();
   renderizar();
   mostrarToast('Registro excluído.');
+  if (removido && removido.data && removido.horario) {
+    horariosExcluidos.add(`${removido.data}|${removido.horario}`);
+    marcarHorarioNaoRecriar(removido.data, removido.horario);
+  }
+}
+
+async function marcarHorarioNaoRecriar(data, horario) {
+  if (typeof db === 'undefined') return;
+  try {
+    await db.collection('config').doc('autosave').set({
+      executados: firebase.firestore.FieldValue.arrayUnion(`${data}|${horario}`),
+    }, { merge: true });
+  } catch (err) {
+    console.warn('Não foi possível marcar horário como excluído:', err.message);
+  }
 }
 
 function limparTudo() {
   if (!confirm('Tem certeza? Todos os registros serão perdidos.')) return;
   if (!confirm('Confirma a exclusão de TODOS os dados?')) return;
+  const removidos = dados;
   dados = [];
   agendarSaveFirestore();
   renderizar();
   mostrarToast('Todos os dados foram limpos.');
+  const marcar = [...new Set(removidos
+    .filter(r => r && r.data && r.horario)
+    .map(r => `${r.data}|${r.horario}`))];
+  if (marcar.length) {
+    try {
+      db.collection('config').doc('autosave').set({
+        executados: firebase.firestore.FieldValue.arrayUnion(...marcar),
+      }, { merge: true });
+    } catch (err) {
+      console.warn('Não foi possível marcar horários como excluídos:', err.message);
+    }
+  }
 }
 
 window.addEventListener('beforeunload', () => {
